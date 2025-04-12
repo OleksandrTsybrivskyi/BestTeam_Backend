@@ -3,17 +3,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Location
 from .serializers import LocationSerializer
+from .lib import location_process_post, location_process_get
 
 
 class LocationView(APIView):
     def get(self, request):
-        locations = Location.objects.filter(has_ramp=True)
-        serialized = LocationSerializer(locations, many=True)
-        return Response(serialized.data)
+        response = location_process_get(request)
+        return Response(response)
 
     def post(self, request):
-        serializer = LocationSerializer(data=request.data)
-        if serializer.is_valid():
-            location = serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+        response = location_process_post(request)
+        return Response(response)
