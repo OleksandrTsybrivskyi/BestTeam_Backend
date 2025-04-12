@@ -10,15 +10,16 @@ class User(AbstractUser):
 
 
 class Location(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    address = models.CharField(max_length=255)
-    
-    has_ramp = models.BooleanField(default=False)
-    has_tactile_elements = models.BooleanField(default=False)
-    has_adapted_toilet = models.BooleanField(default=False)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=200)
+    latitude = models.FloatField(default=0.0)
+    longitude = models.FloatField(default=0.0)
+
+    ramps = models.BooleanField(default=False)
+    tactile_elements = models.BooleanField(default=False)
+    adapted_toilets = models.BooleanField(default=False)
+    wide_entrance = models.BooleanField(default=False)
+    visual_impairment_friendly = models.BooleanField(default=False)
+    wheelchair_accessible = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
