@@ -1,4 +1,4 @@
-from .models import Location
+from .models import Location, Review
 from .serializers import LocationSerializer, ReviewSerializer
 from django.contrib.auth import get_user_model
 
@@ -102,8 +102,45 @@ def location_process_post(request):
     :return: словник з локацією
     якщо виникла помилка, повернути повідомлення про помилку
     '''
+
     data = request.data
     user = request.user
+
+
+    if not user.is_accessibility_user:
+        return "Відмовлено в доступі: користувач не залогінився"
+
+    try:
+        location = Location.objects.get(id=data['id'])
+    except Location.DoesNotExist:
+        return "Помилка: локацію не знайдено"
+
+
+    accessibility = data.get('accessibility', {})
+    location.ramps = accessibility.get('ramps', location.ramps)
+    location.tactile_elements = accessibility.get('tactileElements', location.tactile_elements)
+    location.adapted_toilets = accessibility.get('adaptedToilets', location.adapted_toilets)
+    location.wide_entrance = accessibility.get('wideEntrance', location.wide_entrance)
+    location.visual_impairment_friendly = accessibility.get('visualImpairmentFriendly',
+                                                            location.visual_impairment_friendly)
+    location.wheelchair_accessible = accessibility.get('wheelchairAccessible', location.wheelchair_accessible)
+    location.save()
+
+    response = {
+        'id': location.id,
+        'name': location.name,
+        'position': [location.latitude, location.longitude],
+        'accessibility': {
+            'ramps': location.ramps,
+            'tactileElements': location.tactile_elements,
+            'adaptedToilets': location.adapted_toilets,
+            'wideEntrance': location.wide_entrance,
+            'visualImpairmentFriendly': location.visual_impairment_friendly,
+            'wheelchairAccessible': location.wheelchair_accessible,
+        }
+    }
+
+    return response
 
 
 def review_process_get(request):
@@ -117,13 +154,15 @@ def review_process_get(request):
     '''
 
     parameters = request.GET.dict()
+    location_name = parameters.get('location_name')
 
+    if not location_name:
+        return []
 
+    reviews = Review.objects.filter(location__name=location_name)
 
-
-
-
-
+    serializer = ReviewSerializer(reviews, many=True)
+    return serializer.data
 
 
 def review_process_post(request):
@@ -133,3 +172,20 @@ def review_process_post(request):
     новий відгук, на основі того, що є в базі даних
     '''
     data = request.data
+    user = request.user
+
+    try:
+        location = Location.objects.get(id=data['location'])
+    except Location.DoesNotExist:
+        return "Помилка: локацію не знайдено"
+
+    review = Review.objects.create(
+        location=location,
+        user=user,
+        rating=data.get('rating', 0),
+        comment=data.get('comment', '')
+    )
+
+    serializer = ReviewSerializer(review)
+    return serializer.data
+
