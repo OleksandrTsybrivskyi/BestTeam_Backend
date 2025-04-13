@@ -7,19 +7,7 @@ User = get_user_model()
 
 def location_process_get(request):
     '''
-    Видати список локацій з бази даних, що відповідають
-    заданим фільтрам
-
-    :param parameters: словник, що містить критерії фільтрації,
-    а саме:
-    ramps
-    tactile_elements
-    adapted_toilets
-    wide_entrance
-    visual_impairment_friendly
-    wheelchair_accessible
-    якщо якогось значення немає в словнику, вважати, що воно
-    дорівнює False
+    Видати список всіх локацій з бази даних
 
     :return: список локацій у вигляді словників.
     формат словника є таким:
@@ -37,27 +25,8 @@ def location_process_get(request):
         };
     };
     '''
-
-    parameters = request.GET.dict()
-
     locations = Location.objects.all()
 
-    # Фільтрація за параметрами доступності
-    filter_fields = [
-        'ramps',
-        'tactile_elements',
-        'adapted_toilets',
-        'wide_entrance',
-        'visual_impairment_friendly',
-        'wheelchair_accessible'
-    ]
-
-    for field in filter_fields:
-        if parameters.get(field) == 'true':
-            kwargs = {field: True}
-            locations = locations.filter(**kwargs)
-
-    # Форматування відповіді у вигляді словників
     response = []
     for loc in locations:
         response.append({
