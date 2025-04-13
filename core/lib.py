@@ -43,10 +43,10 @@ def location_process_get(request):
             }
         })
 
-    return response
+    return response, 200
 
 
-def location_process_post(request):
+def location_process_post(request): # не використовується
     '''
     Змінити параметри доступності певної локації
 
