@@ -6,7 +6,7 @@ class User(AbstractUser):
     is_accessibility_user = models.BooleanField(default=False)
     name = models.CharField(max_length=256)
     email = models.CharField(max_length=256)
-    password = models.CharField(max_lenght=256)
+    password = models.CharField(max_length=256)
     join_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
