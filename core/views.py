@@ -6,7 +6,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import LocationSerializer
-from .lib import location_process_post, location_process_get, review_process_get, review_process_post
+from .lib import location_process_post, location_process_get, review_process_get, \
+    review_process_post, proposal_process_get, proposal_process_post
 
 
 class LocationView(APIView):
@@ -30,6 +31,18 @@ class ReviewView(APIView):
 
     def post(self, request):
         response = review_process_post(request)
+        return Response(response)
+
+
+class ProposalView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response = proposal_process_get(request)
+        return Response(response)
+    
+    def post(self, request):
+        response = proposal_process_post(request)
         return Response(response)
 
 

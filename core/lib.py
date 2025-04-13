@@ -29,3 +29,14 @@ def review_process_post(request):
     новий відгук, на основі того, що є в базі даних
     '''
     data = request.data
+
+
+def proposal_process_get(request):
+    parameters = request.GET.dict()
+    user = request.user
+
+
+def proposal_process_post(request):
+    data = request.data
+    user = request.user
+    
