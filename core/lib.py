@@ -1,13 +1,146 @@
-from .models import Location
-from .serializers import LocationSerializer
+from .models import Location, Review
+from .serializers import LocationSerializer, ReviewSerializer
+from django.contrib.auth import get_user_model
 
-
-def location_process_post(request):
-    parameters = request.GET.dict()
+User = get_user_model()
 
 
 def location_process_get(request):
+    '''
+    Видати список локацій з бази даних, що відповідають
+    заданим фільтрам
+
+    :param parameters: словник, що містить критерії фільтрації,
+    а саме:
+    ramps
+    tactile_elements
+    adapted_toilets
+    wide_entrance
+    visual_impairment_friendly
+    wheelchair_accessible
+    якщо якогось значення немає в словнику, вважати, що воно
+    дорівнює False
+
+    :return: список локацій у вигляді словників.
+    формат словника є таким:
+    {
+        id: number;
+        name: string;
+        position: [number, number];
+        accessibility: {
+            ramps: boolean;
+            tactileElements: boolean;
+            adaptedToilets: boolean;
+            wideEntrance: boolean;
+            visualImpairmentFriendly: boolean;
+            wheelchairAccessible: boolean;
+        };
+    };
+    '''
+
+    parameters = request.GET.dict()
+
+    locations = Location.objects.all()
+
+    # Фільтрація за параметрами доступності
+    filter_fields = [
+        'ramps',
+        'tactile_elements',
+        'adapted_toilets',
+        'wide_entrance',
+        'visual_impairment_friendly',
+        'wheelchair_accessible'
+    ]
+
+    for field in filter_fields:
+        if parameters.get(field) == 'true':
+            kwargs = {field: True}
+            locations = locations.filter(**kwargs)
+
+    # Форматування відповіді у вигляді словників
+    response = []
+    for loc in locations:
+        response.append({
+            'id': loc.id,
+            'name': loc.name,
+            'position': [loc.latitude, loc.longitude],
+            'accessibility': {
+                'ramps': loc.ramps,
+                'tactileElements': loc.tactile_elements,
+                'adaptedToilets': loc.adapted_toilets,
+                'wideEntrance': loc.wide_entrance,
+                'visualImpairmentFriendly': loc.visual_impairment_friendly,
+                'wheelchairAccessible': loc.wheelchair_accessible,
+            }
+        })
+
+    return response
+
+
+def location_process_post(request):
+    '''
+    Змінити параметри доступності певної локації
+
+    :param data: словник з даними про локацію
+    Формат словника
+    {
+        id: number;
+        name: string;
+        position: [number, number];
+        accessibility: {
+            ramps: boolean;
+            tactileElements: boolean;
+            adaptedToilets: boolean;
+            wideEntrance: boolean;
+            visualImpairmentFriendly: boolean;
+            wheelchairAccessible: boolean;
+        };
+    };
+    :param user: обєкт класу User, якщо is_accessibility_user == False
+    він не може змінити параметри доступності локації
+
+    :return: словник з локацією
+    якщо виникла помилка, повернути повідомлення про помилку
+    '''
+
     data = request.data
+    user = request.user
+
+
+    if not user.is_accessibility_user:
+        return "Відмовлено в доступі: користувач не залогінився"
+
+    try:
+        location = Location.objects.get(id=data['id'])
+    except Location.DoesNotExist:
+        return "Помилка: локацію не знайдено"
+
+
+    accessibility = data.get('accessibility', {})
+    location.ramps = accessibility.get('ramps', location.ramps)
+    location.tactile_elements = accessibility.get('tactileElements', location.tactile_elements)
+    location.adapted_toilets = accessibility.get('adaptedToilets', location.adapted_toilets)
+    location.wide_entrance = accessibility.get('wideEntrance', location.wide_entrance)
+    location.visual_impairment_friendly = accessibility.get('visualImpairmentFriendly',
+                                                            location.visual_impairment_friendly)
+    location.wheelchair_accessible = accessibility.get('wheelchairAccessible', location.wheelchair_accessible)
+    location.save()
+
+    response = {
+        'id': location.id,
+        'name': location.name,
+        'position': [location.latitude, location.longitude],
+        'accessibility': {
+            'ramps': location.ramps,
+            'tactileElements': location.tactile_elements,
+            'adaptedToilets': location.adapted_toilets,
+            'wideEntrance': location.wide_entrance,
+            'visualImpairmentFriendly': location.visual_impairment_friendly,
+            'wheelchairAccessible': location.wheelchair_accessible,
+        }
+    }
+
+    return response
 
 
 def review_process_get(request):
@@ -19,7 +152,17 @@ def review_process_get(request):
     У вигляді словників (типу словник в такому форматі, як ти його витягуєш з бази даних, тобто дата надсилання локація юзер і т д)
     Якщо ключа location_name немає в словнику, то поверни пустий список
     '''
+
     parameters = request.GET.dict()
+    location_name = parameters.get('location_name')
+
+    if not location_name:
+        return []
+
+    reviews = Review.objects.filter(location__name=location_name)
+
+    serializer = ReviewSerializer(reviews, many=True)
+    return serializer.data
 
 
 def review_process_post(request):
@@ -29,40 +172,20 @@ def review_process_post(request):
     новий відгук, на основі того, що є в базі даних
     '''
     data = request.data
-
-
-def proposal_process_get(request):
-    '''
-    отримати список пропозицій зі зміни рівнів доступності
-    локацій
-
-    :param parameters: список параметрів в URL адресі.
-    Для даної функції не використовується
-    :param user: обєкт класу користувача
-    :return: повертає список словників пропозицій
-    у такому форматі, як в базі даних.
-    Якщо is_accessibility_user == False то повертає
-    повідомлення про заборону доступу
-    '''
-    # parameters = request.GET.dict()
     user = request.user
 
+    try:
+        location = Location.objects.get(id=data['location'])
+    except Location.DoesNotExist:
+        return "Помилка: локацію не знайдено"
 
-def proposal_process_post(request):
-    '''
-    Подати пропозицію на розгляд
+    review = Review.objects.create(
+        location=location,
+        user=user,
+        rating=data.get('rating', 0),
+        comment=data.get('comment', '')
+    )
 
-    :param data: пропозиція у вигляді словника
-    формат
-    {
-        comment:str,
-    }
-    :param user: обєкт класу User
-    :param parameters: словник параметрів в url адресі
-    :return: додати пропозицію до бази даних
-    якщо немає помилок то повернути пропозицію
-    у формі словника, інакше повернути повідомлення про помилку
-    '''
-    data = request.data
-    user = request.user
-    
+    serializer = ReviewSerializer(review)
+    return serializer.data
+
