@@ -25,6 +25,4 @@ class ProposalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Proposal
-        fields = ['id', 'location', 'user', 'comment', 'created_at', \
-                  'ramps', 'tactile_elements', 'adapted_toilets', 'wide_entrance', \
-                    'visual_impairment_friendly', 'wheelchair_accessible']
+        fields = ['id', 'user', 'comment', 'created_at']
