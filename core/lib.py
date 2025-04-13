@@ -56,21 +56,13 @@ def proposal_process_post(request):
     формат
     {
         comment:str,
-        ramps:bool,
-        tactile_elements:bool,
-        adapted_toilets:bool,
-        wide_entrance:bool,
-        visual_impairment_friendly:bool,
-        wheelchair_accessible:bool
     }
     :param user: обєкт класу User
     :param parameters: словник параметрів в url адресі
-    містить ключ 'location_id'
     :return: додати пропозицію до бази даних
     якщо немає помилок то повернути пропозицію
     у формі словника, інакше повернути повідомлення про помилку
     '''
     data = request.data
     user = request.user
-    parameters = request.GET.dict()
     
