@@ -15,6 +15,8 @@ def location_process_get(request):
         id: number;
         name: string;
         position: [number, number];
+        description: string;
+        image_url: string;
         accessibility: {
             ramps: boolean;
             tactileElements: boolean;
@@ -33,6 +35,8 @@ def location_process_get(request):
             'id': loc.id,
             'name': loc.name,
             'position': [loc.latitude, loc.longitude],
+            'description': loc.description,
+            'image_url': loc.image_url,
             'accessibility': {
                 'ramps': loc.ramps,
                 'tactileElements': loc.tactile_elements,

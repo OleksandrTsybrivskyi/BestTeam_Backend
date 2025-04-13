@@ -15,6 +15,9 @@ class Location(models.Model):
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
 
+    description = models.TextField(blank=True)
+    image_url = models.TextField(blank=True)
+
     ramps = models.BooleanField(default=False)
     tactile_elements = models.BooleanField(default=False)
     adapted_toilets = models.BooleanField(default=False)
