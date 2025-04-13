@@ -25,12 +25,12 @@ class ReviewView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        response = review_process_get(request)
-        return Response(response)
+        response, status = review_process_get(request)
+        return Response(response, status=status)
 
     def post(self, request):
-        response = review_process_post(request)
-        return Response(response)
+        response, status = review_process_post(request)
+        return Response(response, status=status)
 
 
 class RegisterView(APIView):

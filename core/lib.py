@@ -145,47 +145,76 @@ def location_process_post(request):
 
 def review_process_get(request):
     '''
-    Ти отримуєш parameters - це словник
-    якщо в ньому є ключ 'location_name'
-    то витягуєш з бази всі відгуки, що належать цій локації з іменем 'location_name'
-    потрібно повернути список цих відгуків
-    У вигляді словників (типу словник в такому форматі, як ти його витягуєш з бази даних, тобто дата надсилання локація юзер і т д)
-    Якщо ключа location_name немає в словнику, то поверни пустий список
+    Отримати відгуки на локацію з певним id
+
+    :param parameters: словник, містить параметри, що вказані
+    в url адресі. В ключі 'location_id' зберігається id
+    локації, для якої потрібно отримати відгуки
+    :return: повернути список відгуків на локацію у
+    форматі словника
+    формат:
+    {
+        id:int,
+        location:int, #тут просто айді локації 
+        user:int, # тут айді юзера
+        rating:int,
+        comment:str,
+        created_at:str
+    }
     '''
-
     parameters = request.GET.dict()
-    location_name = parameters.get('location_name')
+    location_id = parameters.get('location_id')
 
-    if not location_name:
-        return []
-
-    reviews = Review.objects.filter(location__name=location_name)
+    try:
+        location_id = int(location_id)
+    except (TypeError, ValueError):
+        return {"message": "Неправильний айді локації"}, 400
+    if not location_id:
+        return [], 200
+    try:
+        location = Location.objects.get(id=location_id)
+    except Location.DoesNotExist:
+        return {'message': 'Помилка: локацію не знайдено'}, 404
+    reviews = Review.objects.filter(location=location)
 
     serializer = ReviewSerializer(reviews, many=True)
-    return serializer.data
+    return serializer.data, 200
 
 
 def review_process_post(request):
     '''
-    data - це словник
-    потрібно дістати з нього всі потрібні дані щоб створити
-    новий відгук, на основі того, що є в базі даних
+    Надіслати відгук на локацію
+
+    :param data: словник із JSON запитом, формат:
+    {
+        'location_id':int,
+        'rating':int,
+        'comment':str
+    }
+    :param user: об`єкт класу User. За допомогою нього
+    отримується імя користувача
+    :return: якщо все добре, повертається повідомлення
+    {
+        message:'ok'
+    }
+    status = 201
+
+    інакше повернути 
+    {
+        message:'опис помилки'
+    }
+    status = код помилки
     '''
     data = request.data
     user = request.user
 
     try:
-        location = Location.objects.get(id=data['location'])
+        location = Location.objects.get(id=data['location_id'])
     except Location.DoesNotExist:
-        return "Помилка: локацію не знайдено"
+        return {'message':'Помилка: локацію не знайдено'}, 404
 
-    review = Review.objects.create(
-        location=location,
-        user=user,
-        rating=data.get('rating', 0),
-        comment=data.get('comment', '')
-    )
-
-    serializer = ReviewSerializer(review)
-    return serializer.data
-
+    serializer = ReviewSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save(user=user, location=location)
+        return {'message': 'ok'}, 201
+    return {'message': 'Помилка: дані не дійсні'}, 400
