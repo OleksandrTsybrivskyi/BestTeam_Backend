@@ -4,7 +4,7 @@ from .models import User, Location, Review
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_accessibility_user']
+        fields = ['id', 'username', 'email', 'password', 'is_accessibility_user', 'join_date']
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
