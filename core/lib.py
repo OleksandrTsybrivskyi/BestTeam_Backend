@@ -290,10 +290,13 @@ def proposal_process_post(request):
 
         return {'message': 'ok'}, 200
 
-    serializer = ProposalSerializer(data=data)
+    data = request.data.copy()
+    data.pop('location_id', None)
+
+    serializer = ReviewSerializer(data=data)
     if serializer.is_valid():
-        serializer.save(user=user)
+        serializer.save(user=user, location=location)
         return {'message': 'ok'}, 201
     else:
-        return {'message': 'Невірні дані', 'errors': serializer.errors}, 400
+        return {'message': 'Помилка: дані не дійсні', 'errors': serializer.errors}, 400
     
