@@ -10,6 +10,7 @@
 ```bash
     git clone https://github.com/OleksandrTsybrivskyi/BestTeam_Backend.git
 ```
+    
 для клонування репозиторію.
 
 
@@ -22,13 +23,15 @@
 
 Директорія **venv** необхідна для установлення віртуального середовища Python-проекту. 
 
-1. Вводимо команду для створення venv : ```bash python -m venv venv```
+1. Вводимо команду для створення venv : ``` python -m venv venv```
 
 2. Активуємо його: 
 ```bash
      source venv/bin/activate   # для Linux/macOS 
+```
 
-     venv\Scripts\activate  # для Windows 
+```bash
+     venv\Scripts\activate      # для Windows 
 ```
 
 ### *Встановлення необхідних бібліотек*
@@ -43,8 +46,6 @@
 Перед запуском проекту виконуємо необхідні міграції. <br/>
 
 ```bash 
-python manage.py makemigrations 
-
 python manage.py migrate
 ``` 
 
