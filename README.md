@@ -19,8 +19,8 @@ cd BestTeam_Backend
 1. Вводимо команду для створення venv : python -m venv venv   
 
 2. Активуємо його 
-source venv/bin/activate        # для Linux/macOS
-venv\Scripts\activate           # для Windows
+source venv/bin/activate        # для Linux/macOS \n
+venv\Scripts\activate           # для Windows \n
 
 ### **Встановлення необіхдних бібліотек**
 
