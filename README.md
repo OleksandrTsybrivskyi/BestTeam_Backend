@@ -10,7 +10,7 @@
 **git clone https://github.com/OleksandrTsybrivskyi/BestTeam_Backend.git** для клонування репозиторію
 
 2. Переходимо в директорію 
-cd BestTestProject
+cd BestTeam_Backend
 
 ### **Створення та активація venv**
 
