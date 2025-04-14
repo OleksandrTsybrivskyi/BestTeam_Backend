@@ -52,12 +52,17 @@ class RegisterView(APIView):
         username = data['username']
         email = data['email']
         password = data['password']
+
         if not username or not email or not password:
             return Response({'error': 'Missing fields'}, status=400)
         if User.objects.filter(username=username).exists():
             return Response({'error': 'User with such username exists'}, status=400)
         if User.objects.filter(email=email).exists():
             return Response({'error': 'User with such email exists'}, status=400)
-        user = User.objects.create(username=username, email=email, password=password)
+
+        user = User(username=username, email=email)
+        user.set_password(password)  # 🔐 Хешуємо пароль
+        user.save()
+
         token = Token.objects.create(user=user)
         return Response({'token': token.key}, status=201)
