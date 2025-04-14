@@ -44,7 +44,7 @@ class Review(models.Model):
 
 class Proposal(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='reviews')
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='proposals')
     
     comment = models.TextField(blank=True)
 
