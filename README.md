@@ -7,7 +7,7 @@
 ### *Клонування*
 1. Заходимо в термінал та вводимо команду 
 
-** git clone https://github.com/OleksandrTsybrivskyi/BestTeam_Backend.git ** для клонування репозиторію
+**git clone https://github.com/OleksandrTsybrivskyi/BestTeam_Backend.git** для клонування репозиторію
 
 2. Переходимо в директорію 
 cd BestTestProject
@@ -25,7 +25,7 @@ venv\Scripts\activate           # для Windows
 ### **Встановлення необіхдних бібліотек**
 
 Для завантаження всіх необіхдних для виконання програми модулів та залежностей портібно ввести команду
-** pip install -r requirements.txt ** , 
+**pip install -r requirements.txt** , 
 яка починає інсталяцію у venv. 
 
 
