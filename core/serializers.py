@@ -21,8 +21,30 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ProposalSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    username = serializers.SerializerMethodField()
+    location_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Proposal
-        fields = ['id', 'user', 'comment', 'created_at']
+        fields = [
+            'id',
+            'user',
+            'username',
+            'location',
+            'location_name',
+            'comment',
+            'ramps',
+            'tactile_elements',
+            'adapted_toilets',
+            'wide_entrance',
+            'visual_impairment_friendly',
+            'wheelchair_accessible',
+            'created_at'
+        ]
+        read_only_fields = ['user', 'username', 'location_name', 'created_at']
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    def get_location_name(self, obj):
+        return obj.location.name
