@@ -13,8 +13,12 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ['id', 'location', 'user', 'rating', 'comment', 'created_at']
+        fields = ['id', 'location', 'user', 'username', 'rating', 'comment', 'created_at']
+        read_only_fields = ['user', 'username', 'created_at']
+
+    def get_username(self, obj):
+        return obj.user.username

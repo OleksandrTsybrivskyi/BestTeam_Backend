@@ -130,6 +130,7 @@ def review_process_get(request):
         id:int,
         location:int, #тут просто айді локації 
         user:int, # тут айді юзера
+        username:str, #тут нік юзера
         rating:int,
         comment:str,
         created_at:str
