@@ -10,7 +10,7 @@ from .lib import location_process_post, location_process_get, review_process_get
 
 
 class LocationView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         response, status = location_process_get(request)
