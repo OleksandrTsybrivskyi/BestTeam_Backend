@@ -187,11 +187,15 @@ def review_process_post(request):
     except Location.DoesNotExist:
         return {'message':'Помилка: локацію не знайдено'}, 404
 
+    data = request.data.copy()
+    data.pop('location_id', None)
+
     serializer = ReviewSerializer(data=data)
     if serializer.is_valid():
         serializer.save(user=user, location=location)
         return {'message': 'ok'}, 201
-    return {'message': 'Помилка: дані не дійсні'}, 400
+    else:
+        return {'message': 'Помилка: дані не дійсні', 'errors': serializer.errors}, 400
 
 
 
@@ -290,13 +294,10 @@ def proposal_process_post(request):
 
         return {'message': 'ok'}, 200
 
-    data = request.data.copy()
-    data.pop('location_id', None)
-
-    serializer = ReviewSerializer(data=data)
+    serializer = ProposalSerializer(data=data)
     if serializer.is_valid():
-        serializer.save(user=user, location=location)
+        serializer.save(user=user)
         return {'message': 'ok'}, 201
     else:
-        return {'message': 'Помилка: дані не дійсні', 'errors': serializer.errors}, 400
+        return {'message': 'Невірні дані', 'errors': serializer.errors}, 400
     
