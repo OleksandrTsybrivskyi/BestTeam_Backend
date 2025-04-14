@@ -182,20 +182,34 @@ def review_process_post(request):
     data = request.data
     user = request.user
 
+    location_id = data.get('location_id')
+    rating = data.get('rating')
+    comment = data.get('comment', '')
+
+    if not location_id:
+        return {'message': 'Помилка: не вказано ID локації'}, 400
+
     try:
-        location = Location.objects.get(id=data['location_id'])
+        location = Location.objects.get(id=location_id)
     except Location.DoesNotExist:
-        return {'message':'Помилка: локацію не знайдено'}, 404
+        return {'message': 'Помилка: локацію не знайдено'}, 404
 
-    data = request.data.copy()
-    data.pop('location_id', None)
+    try:
+        rating = int(rating)
+    except (TypeError, ValueError):
+        return {'message': 'Помилка: рейтинг має бути цілим числом'}, 400
 
-    serializer = ReviewSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save(user=user, location=location)
-        return {'message': 'ok'}, 201
-    else:
-        return {'message': 'Помилка: дані не дійсні', 'errors': serializer.errors}, 400
+    if rating < 1 or rating > 5:
+        return {'message': 'Помилка: рейтинг має бути від 1 до 5'}, 400
+
+    Review.objects.create(
+        location=location,
+        user=user,
+        rating=rating,
+        comment=comment
+    )
+
+    return {'message': 'ok'}, 201
 
 
 
