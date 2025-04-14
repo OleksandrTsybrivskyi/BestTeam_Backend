@@ -23,7 +23,7 @@ class LocationView(APIView):
 
 
 class ReviewView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request):
         response, status = review_process_get(request)
