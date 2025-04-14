@@ -1,5 +1,5 @@
-from .models import Location, Review
-from .serializers import LocationSerializer, ReviewSerializer
+from .models import Location, Review, Proposal
+from .serializers import LocationSerializer, ReviewSerializer, ProposalSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

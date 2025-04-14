@@ -38,12 +38,12 @@ class ProposalView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        response = proposal_process_get(request)
-        return Response(response)
+        response, status = proposal_process_get(request)
+        return Response(response, status=status)
     
     def post(self, request):
-        response = proposal_process_post(request)
-        return Response(response)
+        response, status = proposal_process_post(request)
+        return Response(response, status=status)
 
 
 class RegisterView(APIView):
